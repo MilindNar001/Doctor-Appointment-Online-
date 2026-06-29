@@ -1,0 +1,148 @@
+const slotSelect = document.querySelector('#appointmentSlot');
+const form = document.querySelector('#appointmentForm');
+const formMessage = document.querySelector('#formMessage');
+const appointmentsList = document.querySelector('#appointmentsList');
+const emptyState = document.querySelector('#emptyState');
+const clearBookingsButton = document.querySelector('#clearBookings');
+const year = document.querySelector('#year');
+
+const STORAGE_KEY = 'careSlotAppointments';
+const slotRanges = [
+  { startHour: 10, endHour: 14 },
+  { startHour: 15, endHour: 19 }
+];
+
+function padTime(value) {
+  return String(value).padStart(2, '0');
+}
+
+function formatSlot(totalMinutes) {
+  const hours24 = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const suffix = hours24 >= 12 ? 'PM' : 'AM';
+  const hours12 = hours24 % 12 || 12;
+  return `${hours12}:${padTime(minutes)} ${suffix}`;
+}
+
+function buildSlots() {
+  const slots = [];
+
+  slotRanges.forEach((range) => {
+    const startMinutes = range.startHour * 60;
+    const endMinutes = range.endHour * 60;
+
+    for (let minutes = startMinutes; minutes < endMinutes; minutes += 15) {
+      slots.push(formatSlot(minutes));
+    }
+  });
+
+  return slots;
+}
+
+function getAppointments() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveAppointments(appointments) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appointments));
+}
+
+function sanitizeText(value) {
+  const element = document.createElement('div');
+  element.textContent = value.trim();
+  return element.textContent;
+}
+
+function setMessage(message, type) {
+  formMessage.textContent = message;
+  formMessage.className = `form-message ${type}`;
+}
+
+function renderSlots() {
+  const appointments = getAppointments();
+  const bookedSlots = appointments.map((appointment) => appointment.slot);
+  const currentValue = slotSelect.value;
+
+  slotSelect.innerHTML = '<option value="">Choose a 15-minute slot</option>';
+
+  buildSlots().forEach((slot) => {
+    const option = document.createElement('option');
+    option.value = slot;
+    option.textContent = bookedSlots.includes(slot) ? `${slot} - already booked` : slot;
+    option.disabled = bookedSlots.includes(slot);
+    slotSelect.appendChild(option);
+  });
+
+  if (currentValue && !bookedSlots.includes(currentValue)) {
+    slotSelect.value = currentValue;
+  }
+}
+
+function renderAppointments() {
+  const appointments = getAppointments();
+  appointmentsList.innerHTML = '';
+  emptyState.hidden = appointments.length > 0;
+
+  appointments.forEach((appointment) => {
+    const item = document.createElement('li');
+    const name = document.createElement('strong');
+    const slot = document.createElement('span');
+    const contact = document.createElement('span');
+
+    name.textContent = appointment.name;
+    slot.textContent = `Slot: ${appointment.slot}`;
+    contact.textContent = `Contact: ${appointment.contact}`;
+
+    item.append(name, slot, contact);
+    appointmentsList.appendChild(item);
+  });
+}
+
+function refreshPageData() {
+  renderSlots();
+  renderAppointments();
+}
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  if (!form.checkValidity()) {
+    setMessage('Please complete all fields with valid information.', 'error');
+    form.reportValidity();
+    return;
+  }
+
+  const formData = new FormData(form);
+  const name = sanitizeText(formData.get('patientName'));
+  const contact = sanitizeText(formData.get('contactNumber'));
+  const slot = sanitizeText(formData.get('appointmentSlot'));
+  const appointments = getAppointments();
+
+  if (appointments.some((appointment) => appointment.slot === slot)) {
+    setMessage('That slot was already booked in this browser. Please choose another slot.', 'error');
+    refreshPageData();
+    return;
+  }
+
+  appointments.push({ name, contact, slot });
+  appointments.sort((first, second) => buildSlots().indexOf(first.slot) - buildSlots().indexOf(second.slot));
+  saveAppointments(appointments);
+  form.reset();
+  setMessage('Appointment confirmed in this browser demo.', 'success');
+  refreshPageData();
+});
+
+clearBookingsButton.addEventListener('click', () => {
+  localStorage.removeItem(STORAGE_KEY);
+  form.reset();
+  setMessage('Local demo bookings were cleared.', 'success');
+  refreshPageData();
+});
+
+year.textContent = new Date().getFullYear();
+refreshPageData();
+style.css
