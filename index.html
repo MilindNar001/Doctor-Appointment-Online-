@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A free static doctor appointment booking demo for GitHub Pages." />
+  <title>Doctor Appointment Booking</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="logo" href="#top" aria-label="Doctor Appointment Home">
+        <span class="logo-mark" aria-hidden="true">+</span>
+        CareSlot
+      </a>
+      <a class="nav-link" href="#appointment">Book Appointment</a>
+    </nav>
+
+    <section class="hero" id="top">
+      <div class="hero-content">
+        <p class="eyebrow">Free static website demo</p>
+        <h1>Book a doctor appointment in seconds.</h1>
+        <p class="hero-text">
+          Choose an available 15-minute slot between 10:00 AM–2:00 PM or 3:00 PM–7:00 PM.
+          This GitHub Pages-friendly version stores bookings only in your browser.
+        </p>
+        <a class="button button-primary" href="#appointment">Start Booking</a>
+      </div>
+      <aside class="hero-card" aria-label="Clinic hours">
+        <h2>Clinic Hours</h2>
+        <ul>
+          <li><span>Morning</span><strong>10:00 AM - 2:00 PM</strong></li>
+          <li><span>Break</span><strong>2:00 PM - 3:00 PM</strong></li>
+          <li><span>Evening</span><strong>3:00 PM - 7:00 PM</strong></li>
+        </ul>
+      </aside>
+    </section>
+  </header>
+
+  <main>
+    <section class="notice" aria-labelledby="important-note-title">
+      <h2 id="important-note-title">Important static-site note</h2>
+      <p>
+        Because this project uses only HTML, CSS, and JavaScript, it has no real server-side backend,
+        database, authentication, or permanent cross-device appointment storage. For real medical use,
+        add a secure backend and follow healthcare privacy laws.
+      </p>
+    </section>
+
+    <section class="booking-grid" id="appointment" aria-labelledby="booking-title">
+      <div class="panel form-panel">
+        <p class="section-label">Appointment form</p>
+        <h2 id="booking-title">Patient details</h2>
+        <form id="appointmentForm" novalidate>
+          <div class="form-group">
+            <label for="patientName">Patient name</label>
+            <input
+              type="text"
+              id="patientName"
+              name="patientName"
+              autocomplete="name"
+              minlength="2"
+              maxlength="60"
+              pattern="^[A-Za-z][A-Za-z .'-]{1,59}$"
+              placeholder="Example: Asha Sharma"
+              required
+            />
+            <small>Use 2-60 letters. Spaces, dots, apostrophes, and hyphens are allowed.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="contactNumber">Contact number</label>
+            <input
+              type="tel"
+              id="contactNumber"
+              name="contactNumber"
+              inputmode="tel"
+              autocomplete="tel"
+              minlength="10"
+              maxlength="15"
+              pattern="^[0-9+() -]{10,15}$"
+              placeholder="Example: 9876543210"
+              required
+            />
+            <small>Enter a 10-15 character phone number using digits and common phone symbols.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentSlot">Appointment slot</label>
+            <select id="appointmentSlot" name="appointmentSlot" required>
+              <option value="">Choose a 15-minute slot</option>
+            </select>
+          </div>
+
+          <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+
+          <button class="button button-primary" type="submit">Confirm Appointment</button>
+          <button class="button button-secondary" type="button" id="clearBookings">Clear local demo bookings</button>
+        </form>
+      </div>
+
+      <div class="panel summary-panel">
+        <p class="section-label">Your browser only</p>
+        <h2>Booked slots</h2>
+        <div id="emptyState" class="empty-state">
+          No appointments booked in this browser yet.
+        </div>
+        <ul id="appointmentsList" class="appointments-list" aria-label="Booked appointments"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year"></span> CareSlot. Static demo for learning HTML, CSS, and JavaScript.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
